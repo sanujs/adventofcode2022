@@ -78,7 +78,6 @@ def part_two(directory_sizes):
 
 
 if __name__ == "__main__":
-    filesystem = build_filesystem()
-    directory_sizes = get_directory_sizes(filesystem)
+    directory_sizes = get_directory_sizes(build_filesystem())
     print(part_one(directory_sizes))
     print(part_two(directory_sizes))
