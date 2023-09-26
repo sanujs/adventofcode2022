@@ -15,24 +15,25 @@ class Monkey:
     def receive(self, item):
         self.items.append(item)
 
-    def turn(self, part):
+    def turn(self, part, lcm):
         if part == 1:
             new_items = [self.inspect(item)//3 for item in self.items]
         else:
-            new_items = [self.inspect(item) for item in self.items]
+            new_items = [self.inspect(item)%lcm for item in self.items]
         item_throws = [(item, self.throw_true if item % self.throw_divisor == 0 else self.throw_false) for item in new_items]
         self.inspect_count += len(new_items)
         self.items = []
         return item_throws
 
-def round(monkeys, part):
+def round(monkeys, part, lcm=0):
     for monkey in monkeys:
-        item_throws = monkey.turn(part)
+        item_throws = monkey.turn(part, lcm)
         for item, rec_monkey in item_throws:
             monkeys[rec_monkey].receive(item)
 
 def parse_input():
     monkeys = []
+    lcm = 1
     with open("input.txt") as f:
         line = f.readline()
         while line != "":
@@ -40,16 +41,17 @@ def parse_input():
             items = f.readline().strip().removeprefix("Starting items: ").split(", ")
             op_str = f.readline().strip().removeprefix("Operation: new = ")
             throw_divisor = int(f.readline().strip().split(" ")[-1])
+            lcm *= throw_divisor
             throw_true = int(f.readline().strip().split(" ")[-1])
             throw_false = int(f.readline().strip().split(" ")[-1])
             monkeys.append(Monkey(label, items, op_str, throw_divisor, throw_true, throw_false))
             f.readline()
             line = f.readline()
 
-    return monkeys
+    return monkeys, lcm
 
 def part_one():
-    monkeys = parse_input()
+    monkeys, _ = parse_input()
     for _ in range(20):
         round(monkeys, 1)
     counts = [monkey.inspect_count for monkey in monkeys]
@@ -58,13 +60,10 @@ def part_one():
     return i * max(counts)
 
 def part_two():
-    monkeys = parse_input()
-    for _ in range(100):
-        round(monkeys, 2)
-    for monkey in monkeys:
-        print(monkey.items)
+    monkeys, lcm = parse_input()
+    for _ in range(10000):
+        round(monkeys, 2, lcm)
     counts = [monkey.inspect_count for monkey in monkeys]
-    print(counts)
     i = max(counts)
     counts.remove(i)
     return i * max(counts)
